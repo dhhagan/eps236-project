@@ -1,4 +1,6 @@
 # Model Initialization
+# Read in experimental data for emissions and losses
+# Initalize global variables for mass of atmosphere, troposphere, and the individual compounds
 
 ##   GLOBAL LIFETIMES in YEARS  (REQUIRED file):  vvvvvvvvvvvvvv
 tau.global.lifetimes.years <- scan("data/tglobal_all.txt",skip=1)
