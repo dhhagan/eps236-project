@@ -1,10 +1,10 @@
 # Model Initialization
 
 ##   GLOBAL LIFETIMES in YEARS  (REQUIRED file):  vvvvvvvvvvvvvv
-tglobal.lifetimes.years <- scan("data/tglobal_all.txt",skip=1)
+tau.global.lifetimes.years <- scan("data/tglobal_all.txt",skip=1)
 
 # Name the columns in the tglobal.all array
-names(tglobal.lifetimes.years) <- scan("data/tglobal_all.txt", nlines=1, what=character())
+names(tau.global.lifetimes.years) <- scan("data/tglobal_all.txt", nlines=1, what=character())
 
 #  Read in NASA Greenhouse Gas Global Monitoring Devision values
 ghg.observations <- read.table("data/ghg.GMD.conc.tbl", header = TRUE)
