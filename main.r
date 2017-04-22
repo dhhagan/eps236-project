@@ -39,6 +39,8 @@ sf6.observations.boxed.annual.means <- aggregate(sf6.observations, list(sf6.obse
 #tau.hemisphere.intra <- 0.5
 #strat.nh.fraction <- 0.55
 
+sw.res <- run.model(species, 4, 2, 0.5, 0.55)
+
 # Iterate over all combinations
 tau.stratosphere.list = seq(1,20,0.5)
 tau.hemisphere.inter.list = seq(1,5,0.5)

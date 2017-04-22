@@ -99,6 +99,7 @@ run.model <- function(species, tau.stratosphere=4, tau.hemisphere.inter=2, tau.h
   # Run the model and return the matrix of box-by-box results
   # First, calculate the fluxes
   # We start in 1995 because that's where the observations begin and go to 2008 because that's where EDGAR sources end
+  # EDGAR scaling factor of 1.1 is added
   vals <- calc.flux.and.lifetimes(species = species, tau.stratosphere = tau.stratosphere, tau.hemisphere.inter = tau.hemisphere.inter,
                                   tau.hemisphere.intra = tau.hemisphere.intra, strat.nh.fraction = strat.nh.fraction)
   
@@ -198,7 +199,7 @@ run.model <- function(species, tau.stratosphere=4, tau.hemisphere.inter=2, tau.h
   
   for (tstep in timestamps) {
     gradient <- (k.matrix.norm %*% magic.matrix[, ncol(magic.matrix)] + 
-                   sources.sf6[, as.character(trunc(tstep))] / c(mass.troposphere, mass.stratosphere) * mass.global) * delta
+                   sources.sf6[, as.character(trunc(tstep))] / c(mass.troposphere, mass.stratosphere) *1.1* mass.global) * delta
     
     # Forward step
     new.vals <- magic.matrix[, ncol(magic.matrix)] + gradient
@@ -220,13 +221,18 @@ run.model <- function(species, tau.stratosphere=4, tau.hemisphere.inter=2, tau.h
 }
 
 
-min.cost <- function(model.output, obs.output, box.no=1) {
+min.cost <- function(model.output, obs.output, box.no=1, squared=TRUE) {
   # if box.no == NA, return total sum
   # min.cost(model.results, sf6.observations.boxed.annual.means, box.no = 4)
   x1 <- obs.output[, c("SF6.box.1", "SF6.box.2", "SF6.box.3", "SF6.box.4")]
   x2 <- model.output[, c("box.1", "box.2", "box.3", "box.4")]
   
-  colsums <- colSums(abs(x2 - x1))
+  if (squared == TRUE) {
+    colsums <- colSums((x2 - x1)^2)
+  }
+  else {
+    colsums <- colSums(abs(x2 - x1))
+  }
   
   if (is.nan(box.no)) {
     res <- sum(colsums)
