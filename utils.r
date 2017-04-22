@@ -226,10 +226,13 @@ min.cost <- function(model.output, obs.output, box.no=1) {
   x1 <- obs.output[, c("SF6.box.1", "SF6.box.2", "SF6.box.3", "SF6.box.4")]
   x2 <- model.output[, c("box.1", "box.2", "box.3", "box.4")]
   
-  colsums <- colSums(abs(x1 - x2))
+  colsums <- colSums(abs(x2 - x1))
   
   if (is.nan(box.no)) {
     res <- sum(colsums)
+  }
+  else if (box.no == 'all') {
+    res <- colsums
   }
   else {
     res <- colsums[box.no]

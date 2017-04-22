@@ -6,6 +6,7 @@
 #
 #
 library(dplyr)
+library(feather)
 
 source("model_initialize.r")
 
@@ -44,10 +45,11 @@ strat.nh.fraction <- 0.55
 #min <- min.cost(model.results, sf6.observations.boxed.annual.means, box.no = 4)
 
 # Iterate over all combinations
-tau.stratosphere.list = seq(1,10,.1)
-tau.hemisphere.inter.list = seq(1,5,.1)
-tau.hemisphere.intra.list = seq(0.1, 1, 0.05)
-strat.nh.fraction.list = seq(0.4, 0.6, 0.01)
+
+tau.stratosphere.list = seq(1,10,0.5)
+tau.hemisphere.inter.list = seq(1,5,0.5)
+tau.hemisphere.intra.list = seq(0.1, 1, 0.1)
+strat.nh.fraction.list = seq(0.4, 0.6, 0.1)
 
 res.matrix = matrix(ncol=9, nrow=0)
 
@@ -79,7 +81,8 @@ colnames(res.df) <- c("t.strat", "t.hemi.inter", "t.hemi.intra", "strat.frac", "
 
 head(arrange(res.df, min.box.all))
 
-
+# Save the data in feather format
+feather::write_feather(res.df, "results/iterative_results.feather")
 
 # Plot the model results
 #matplot(c(timestamps[1] - delta, timestamps), t(magic.matrix), type='l', lwd=4)
