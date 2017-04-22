@@ -5,8 +5,10 @@
 #
 #
 #
+
 library(dplyr)
 library(feather)
+library(progress)
 
 source("model_initialize.r")
 
@@ -31,27 +33,24 @@ sf6.observations <- cbind(sf6.observations, year=floor(as.numeric(row.names.data
 
 sf6.observations.boxed.annual.means <- aggregate(sf6.observations, list(sf6.observations$year), mean)
 
-
-# Define params
-tau.stratosphere <- 4
-tau.hemisphere.inter <- 2
-tau.hemisphere.intra <- 0.5
-strat.nh.fraction <- 0.55
-
-#model.results <- run.model(species, tau.stratosphere = tau.stratosphere, tau.hemisphere.inter = tau.hemisphere.inter, 
-#                           tau.hemisphere.intra = tau.hemisphere.intra, strat.nh.fraction = strat.nh.fraction)
-
-
-#min <- min.cost(model.results, sf6.observations.boxed.annual.means, box.no = 4)
+# Define default params
+#tau.stratosphere <- 4
+#tau.hemisphere.inter <- 2
+#tau.hemisphere.intra <- 0.5
+#strat.nh.fraction <- 0.55
 
 # Iterate over all combinations
-
-tau.stratosphere.list = seq(1,10,0.5)
+tau.stratosphere.list = seq(1,20,0.5)
 tau.hemisphere.inter.list = seq(1,5,0.5)
 tau.hemisphere.intra.list = seq(0.1, 1, 0.1)
-strat.nh.fraction.list = seq(0.4, 0.6, 0.1)
+strat.nh.fraction.list = seq(0.4, 0.6, 0.05)
 
 res.matrix = matrix(ncol=9, nrow=0)
+
+n_runs = length(tau.stratosphere.list) * length(tau.hemisphere.inter.list) * length(tau.hemisphere.intra.list) * 
+            length(strat.nh.fraction.list)
+
+progress.bar <- progress::progress_bar$new(total=n_runs, format=" running the codez [:bar] :percent eta: :eta")
 
 for (t.strat in tau.stratosphere.list) {
   for (t.hemi.inter in tau.hemisphere.inter.list) {
@@ -69,6 +68,9 @@ for (t.strat in tau.stratosphere.list) {
         
         res.matrix <- rbind(res.matrix, c(t.strat, t.hemi.inter, t.hemi.intra, strat.frac, min.box.1, min.box.2, 
                                          min.box.3, min.box.4, min.box.all))
+        
+        # Update the progress bar
+        progress.bar$tick()
       }
     }
   }
@@ -79,19 +81,15 @@ res.df <- data.frame(res.matrix)
 colnames(res.df) <- c("t.strat", "t.hemi.inter", "t.hemi.intra", "strat.frac", "min.box.1", 
                       "min.box.2", "min.box.3", "min.box.4", "min.box.all")
 
-head(arrange(res.df, min.box.all))
+# Find the row with the lowest min.box.all value
+min.params <- arrange(res.df, min.box.all)[1,]
+
+# Obtain the actual model results with the minimum params and write to a feather file
+min.results <- run.model(species, min.params$t.strat, min.params$t.hemi.inter, min.params$t.hemi.intra,
+                         min.params$strat.frac)
 
 # Save the data in feather format
 feather::write_feather(res.df, "results/iterative_results.feather")
+feather::write_feather(min.results, "results/model_results_min2.feather")
+feather::write_feather(sf6.observations.boxed.annual.means, "results/sf6_emissions.feather")
 
-# Plot the model results
-#matplot(c(timestamps[1] - delta, timestamps), t(magic.matrix), type='l', lwd=4)
-#legend("topleft", legend=paste("Box",1:5), col=1:5, lty=1:5, text.col=1:5, text.font=2)
-
-# Add the observed points to the list
-#yy <- ghg.observations[, "Year"]
-#matpoints(yy, ghg.observations[,paste("SF6","box",1:4,sep=".")],pch=16,cex=.5)
-
-
-# Generate a matrix to compate to (index 218-452)
-# To compare we need to eliminate a row from magic.matrix
