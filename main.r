@@ -37,16 +37,15 @@ tau.hemisphere.inter <- 2
 tau.hemisphere.intra <- 0.5
 strat.nh.fraction <- 0.55
 
-model.results <- run.model(species, tau.stratosphere = tau.stratosphere, tau.hemisphere.inter = tau.hemisphere.inter, 
-                           tau.hemisphere.intra = tau.hemisphere.intra, strat.nh.fraction = strat.nh.fraction)
+#model.results <- run.model(species, tau.stratosphere = tau.stratosphere, tau.hemisphere.inter = tau.hemisphere.inter, 
+#                           tau.hemisphere.intra = tau.hemisphere.intra, strat.nh.fraction = strat.nh.fraction)
 
 
-
-min <- min.cost(model.results, sf6.observations.boxed.annual.means, box.no = 4)
+#min <- min.cost(model.results, sf6.observations.boxed.annual.means, box.no = 4)
 
 # Iterate over all combinations
-tau.stratosphere.list = seq(1,10,1)
-tau.hemisphere.inter.list = seq(1,5,1)
+tau.stratosphere.list = seq(1,10,.1)
+tau.hemisphere.inter.list = seq(1,5,.1)
 tau.hemisphere.intra.list = seq(0.1, 1, 0.05)
 strat.nh.fraction.list = seq(0.4, 0.6, 0.01)
 
