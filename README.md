@@ -18,6 +18,13 @@ After running a Monte Carlo for 1M iterations, we arrived at our optimal solutio
   * `t.hemi.intra`: 0.129
   * `strat.frac`: 0.025
 
+Updated with more resolved value range
+
+* `t.strat`: 5.21 yr
+* `t.hemi.inter`: 0.774
+* `t.hemi.intra`: 0.150
+* `strat.frac`: 0.484
+
 ## Variable Definitions
 
 | Variable Name | Definition |

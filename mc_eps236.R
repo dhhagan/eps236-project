@@ -32,7 +32,7 @@ sf6.observations.boxed.annual.means <- aggregate(sf6.observations, list(sf6.obse
 
 # Set up our version of a monte carlo where we choose values from a random sequence thousands of time.
 
-num.iterations <- 1000000
+num.iterations <- 100000
 
 # Set up the progress bar
 progress.bar <- progress::progress_bar$new(total=num.iterations, format=" running the codez [:bar] :percent eta: :eta")
@@ -42,11 +42,11 @@ res.matrix = matrix(ncol=5, nrow=0)
 
 # Min and Max values
 t.strat.min <- 1
-t.strat.max <- 20
-t.hemi.inter.min <- 1
-t.hemi.inter.max <- 5
-t.hemi.intra.min <- 0.1
-t.hemi.intra.max <- 1
+t.strat.max <- 15
+t.hemi.inter.min <- 0.01
+t.hemi.inter.max <- 2.0
+t.hemi.intra.min <- 0.01
+t.hemi.intra.max <- 0.5
 strat.frac.min <- 0.2
 strat.frac.max <- 0.8
 
