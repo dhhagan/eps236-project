@@ -9,45 +9,19 @@ import numpy as np
 import math
 from datetime import datetime
 
-sns.set("talk", style='ticks', palette='dark', font_scale=1.5)
+sns.set("talk", style='ticks', palette='dark', font_scale=1.5, color_codes=True)
 
 sf6 = feather.read_dataframe("sf6_emissions.feather")
-mod = feather.read_dataframe("min_model_results_mc.feather")
-res = feather.read_dataframe("iterative_results.feather")
+mod = feather.read_dataframe("mc_results_1M_final.feather")
+res = feather.read_dataframe("mc_results_1M_iters.feather")
 sw = feather.read_dataframe("sw-results.feather")
 
 # Let's make a confusion matrix to show which variables actually matter!
-confmat = res[['t.strat', 't.hemi.inter', 't.hemi.intra', 'strat.frac', 'min.box.all']]
-
-corr = confmat.corr()
-
-sns.heatmap(corr)
-
-x = confmat['t.strat']
-y = confmat['t.hemi.inter']
-
-X, Y = np.meshgrid(x, y)
-Z = confmat['min.box.all']
-
-plt.figure()
-plt.pcolormesh(confmat[['t.strat', 't.hemi.inter', 'min.box.all']].values, cmap='RdBu')
-plt.colorbar()
-
-res.info()
-
+# If we grab the min 1000 values and plot histograms, the more important variables
+# should be more narrowly distributed!
 res.describe()
 
-
-# Grab results where t.strat is 2
-tmp = res.groupby(['t.strat'])
-
-# Plot tstrat against value
-res.groupby(['t.strat']).mean().plot(y='min.box.all')
-
-# Plot tstrat against value
-res.groupby(['strat.frac']).mean().plot(y='min.box.all')
-
-
+# Delete this column from all dataframes
 del mod["Group.1"]
 del sf6["Group.1"]
 del sw['Group.1']
@@ -62,62 +36,86 @@ mod.set_index("year", inplace=True)
 sf6.set_index("year", inplace=True)
 sw.set_index("year", inplace=True)
 
-sf6.head()
-
-sw.head()
-
-mod.head()
 
 cp = sns.color_palette()
 
-fig, ax = plt.subplots(1, figsize=(14, 10))
+fig, ax = plt.subplots(1, figsize=(14,10))
 
 # Plot the modeled results
-ax.plot(mod['box.1'], lw=3, label='box.1', c=cp[0])
-#ax.plot(mod['box.2'], lw=3, label='box.2', c=cp[1])
-#ax.plot(mod['box.3'], lw=3, label='box.3', c=cp[2])
-#ax.plot(mod['box.4'], lw=3, label='box.4', c=cp[3])
-#ax.plot(mod['box.5'], lw=4, label='box.5', c=cp[4])
+ax.plot(mod['box.1'], lw=4, label='box.1', c=cp[0])
+ax.plot(mod['box.2'], lw=4, label='box.2', c=cp[1])
+ax.plot(mod['box.3'], lw=4, label='box.3', c=cp[2])
+ax.plot(mod['box.4'], lw=4, label='box.4', c=cp[3])
+ax.plot(mod['box.5'], lw=4, label='box.5', c=cp[4])
 
 # Plot the known values
-ax.plot(sf6['SF6.box.1'], '--', c=cp[0])
-#ax.plot(sf6['SF6.box.2'], '--', c=cp[1])
-#ax.plot(sf6['SF6.box.3'], '--', c=cp[2])
-#ax.plot(sf6['SF6.box.4'], '--', c=cp[3])
-
-ax.plot(sw['box.1'], 'o', c=cp[0], label="SW.box.1")
-#ax.plot(sw['box.2'], 'o', c=cp[1], label="SW.box.2")
-#ax.plot(sw['box.3'], 'o', c=cp[2], label="SW.box.3")
-#ax.plot(sw['box.4'], 'o', c=cp[3], label="SW.box.4")
+ax.plot(sf6['SF6.box.1'], '-.', c=cp[0], label="")
+ax.plot(sf6['SF6.box.2'], '-.', c=cp[1], label="")
+ax.plot(sf6['SF6.box.3'], '-.', c=cp[2], label="")
+ax.plot(sf6['SF6.box.4'], '-.', c=cp[3], label="")
 
 ax.legend(loc='best')
 ax.set_ylabel("SF6 (ppt)")
 ax.set_xlabel("")
-ax.set_title("Modeled SF6 Results", y=1.05)
+ax.set_title("Monte Carlo SF6 Results", y=1.05)
 sns.despine(offset=5)
+
+
 
 # Timeseries of the residulas
 fig, ax = plt.subplots(1, figsize=(14, 10))
 
 # Plot the modeled results
-ax.plot(sf6['SF6.box.1'] - mod['box.1'], lw=3, label='box.1', c=cp[0])
-ax.plot(sf6['SF6.box.2'] - mod['box.2'], lw=3, label='box.2', c=cp[1])
-ax.plot(sf6['SF6.box.3'] - mod['box.3'], lw=3, label='box.3', c=cp[2])
-ax.plot(sf6['SF6.box.4'] - mod['box.4'], lw=3, label='box.4', c=cp[3])
+ax.plot(sf6['SF6.box.1'] - mod['box.1'], 'o-', lw=3, label='box.1', c=cp[0])
+ax.plot(sf6['SF6.box.2'] - mod['box.2'], 'o-', lw=3, label='box.2', c=cp[1])
+ax.plot(sf6['SF6.box.3'] - mod['box.3'], 'o-', lw=3, label='box.3', c=cp[2])
+ax.plot(sf6['SF6.box.4'] - mod['box.4'], 'o-', lw=3, label='box.4', c=cp[3])
 #ax.plot(mod['box.5'], lw=4, label='box.5', c=cp[4])
 
 ax.legend(loc='best')
 ax.set_ylabel("SF6 Residuals (ppt)")
 ax.set_xlabel("")
-ax.set_title("Modeled SF6 Results", y=1.05)
+ax.set_title("Modeled SF6 Residuals", y=1.05)
+
+yloc = plt.MaxNLocator(3)
+ax.yaxis.set_major_locator(yloc)
+plt.ylim([-0.1, 0.1])
 sns.despine(offset=5)
 
 
+# Visualize results for the most accurate 1000 runs?
+best = res.sort_values("min.box.all").head(1000)
+best.tail()
+# Histogram Distplot showing distribution of residual
 
+with sns.axes_style("white"):
+    f, ax = plt.subplots(2, 2, figsize=(14, 10))
 
-# Histogram Distplot showing distribution of residuals
-plt.figure()
-ax = sns.distplot(a=(sf6["SF6.box.1"] - mod["box.1"]), hist=False, label="Box.1")
-ax = sns.distplot(a=(sf6["SF6.box.2"] - mod["box.2"]), hist=False, label="Box.2", ax=ax)
-ax = sns.distplot(a=(sf6["SF6.box.3"] - mod["box.3"]), hist=False, label="Box.3", ax=ax)
-ax = sns.distplot(a=(sf6["SF6.box.4"] - mod["box.4"]), hist=False, label="Box.4", ax=ax)
+    sns.despine(left=True)
+
+    # Plot the t.strat distribution
+    sns.distplot(best['t.strat'], kde=True, hist=False, color='b', ax=ax[0, 0], kde_kws=dict(shade=True))
+
+    # Plot the t.hemi.inter distribution
+    sns.distplot(best['t.hemi.inter'], kde=True, hist=False, color='g', ax=ax[0, 1], kde_kws=dict(shade=True))
+
+    sns.distplot(best['t.hemi.intra'], kde=True, hist=False, color='r', ax=ax[1, 0], kde_kws=dict(shade=True))
+
+    sns.distplot(best['strat.frac'], kde=True, hist=False, color='m', ax=ax[1, 1], kde_kws=dict(shade=True))
+
+    #ax[0, 0].set_xlim([1, 20])
+    ax[0, 0].set_ylim([0, ax[0,0].get_ylim()[-1]])
+
+    #ax[0, 1].set_xlim([1, 5])
+    ax[0, 1].set_ylim([0, ax[0,1].get_ylim()[-1]])
+
+    #ax[1, 0].set_xlim([0.1, 1])
+    ax[1, 0].set_ylim([0, ax[1,0].get_ylim()[-1]])
+
+    #ax[1, 1].set_xlim([0.2, 0.8])
+    ax[1, 1].set_ylim([0, ax[1,1].get_ylim()[-1]])
+
+    # Remove the axes labels
+    plt.setp(ax, yticks=[])
+
+    plt.tight_layout()

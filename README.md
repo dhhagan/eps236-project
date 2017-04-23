@@ -9,6 +9,15 @@ Set up a 5-box model
 
   1.
 
+## Final Model Parameters
+
+After running a Monte Carlo for 1M iterations, we arrived at our optimal solution:
+
+  * `t.strat`: 6.03 yr
+  * `t.hemi.inter`: 1.026
+  * `t.hemi.intra`: 0.129
+  * `strat.frac`: 0.025
+
 ## Variable Definitions
 
 | Variable Name | Definition |

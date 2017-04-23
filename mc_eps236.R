@@ -32,7 +32,7 @@ sf6.observations.boxed.annual.means <- aggregate(sf6.observations, list(sf6.obse
 
 # Set up our version of a monte carlo where we choose values from a random sequence thousands of time.
 
-num.iterations <- 1000
+num.iterations <- 1000000
 
 # Set up the progress bar
 progress.bar <- progress::progress_bar$new(total=num.iterations, format=" running the codez [:bar] :percent eta: :eta")
@@ -80,8 +80,8 @@ min.results <- run.model(species, min.params$t.strat, min.params$t.hemi.inter, m
                          min.params$strat.frac)
 
 # Write results to file
-feather::write_feather(res.df, "results/mc_results_eps236.feather")
-feather::write_feather(min.results, "results/min_model_results_mc.feather")
+feather::write_feather(res.df, "results/mc_results_1M_iters.feather")
+feather::write_feather(min.results, "results/mc_results_1M_final.feather")
 
 plot(min.results$year, min.results$box.2, col='green', pch=21, bg='green')
 lines(sf6.observations.boxed.annual.means$year, sf6.observations.boxed.annual.means$SF6.box.2)
