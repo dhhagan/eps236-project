@@ -1,5 +1,4 @@
 # Our attempt at a Monte Carlo Simulation
-
 # Run MonteCarlo Simulations to determine the optimal settings for the model
 
 library(dplyr)
@@ -15,6 +14,9 @@ source("utils.r")
 # Calculate params for SF6
 species = "SF6"
 
+# Define the number of iterations to use in the Monte Carlo simulation
+num.iterations <- 100000
+
 # Bring in our observations for SF6
 idx.low <- 218
 idx.high <- 383
@@ -29,10 +31,8 @@ sf6.observations <- cbind(sf6.observations, year=floor(as.numeric(row.names.data
 
 sf6.observations.boxed.annual.means <- aggregate(sf6.observations, list(sf6.observations$year), mean)
 
-
 # Set up our version of a monte carlo where we choose values from a random sequence thousands of time.
 
-num.iterations <- 100000
 
 # Set up the progress bar
 progress.bar <- progress::progress_bar$new(total=num.iterations, format=" running the codez [:bar] :percent eta: :eta")
@@ -66,7 +66,6 @@ for (i in 1:num.iterations) {
   
   # Update the progress bar
   progress.bar$tick()
-  
 }
 
 res.df <- data.frame(res.matrix)
@@ -80,8 +79,5 @@ min.results <- run.model(species, min.params$t.strat, min.params$t.hemi.inter, m
                          min.params$strat.frac)
 
 # Write results to file
-feather::write_feather(res.df, "results/mc_results_1M_iters.feather")
-feather::write_feather(min.results, "results/mc_results_1M_final.feather")
-
-plot(min.results$year, min.results$box.2, col='green', pch=21, bg='green')
-lines(sf6.observations.boxed.annual.means$year, sf6.observations.boxed.annual.means$SF6.box.2)
+feather::write_feather(res.df, "results/mc_results_by_iter.feather")
+feather::write_feather(min.results, "results/mc_results_final.feather")

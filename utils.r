@@ -1,5 +1,11 @@
 # Function definitions file
+# Contains the following functions:
+#   1) calc.flux.and.lifetimes
+#   2) run.model
+#   3) min.cost
 
+
+# calc.flux.and.lifetimes calculates the flux and lifetimes for a given species
 calc.flux.and.lifetimes = function(species, tau.stratosphere=4, tau.hemisphere.inter=2, tau.hemisphere.intra=0.5,
                                    strat.nh.fraction=0.55, print_header=F) {
   # data is molecular.wt.all
@@ -94,6 +100,7 @@ calc.flux.and.lifetimes = function(species, tau.stratosphere=4, tau.hemisphere.i
   return (vars.to.return)
 }
 
+# run.model runs a 5-box model for a specific species and returns the results in a list
 run.model <- function(species, tau.stratosphere=4, tau.hemisphere.inter=2, tau.hemisphere.intra=0.5, strat.nh.fraction=0.55,
                       DEBUG = FALSE, AVG.1.YR=TRUE) {
   # Run the model and return the matrix of box-by-box results
@@ -220,7 +227,7 @@ run.model <- function(species, tau.stratosphere=4, tau.hemisphere.inter=2, tau.h
   return (results)
 }
 
-
+# min.cost is a cost function that calculates the square of the residuals and returns it by box or in total
 min.cost <- function(model.output, obs.output, box.no=1, squared=TRUE) {
   # if box.no == NA, return total sum
   # min.cost(model.results, sf6.observations.boxed.annual.means, box.no = 4)
@@ -247,25 +254,3 @@ min.cost <- function(model.output, obs.output, box.no=1, squared=TRUE) {
   return (res)
 }
 
-min.cost.last <- function(model.output, obs.output, box.no=1) {
-  # if box.no == NA, return total sum
-  # min.cost(model.results, sf6.observations.boxed.annual.means, box.no = 4)
-  # Cost function is based on only the last value (2008)
-  
-  x1 <- obs.output[, c("SF6.box.1", "SF6.box.2", "SF6.box.3", "SF6.box.4")][dim(obs.output)[1],]
-  x2 <- model.output[, c("box.1", "box.2", "box.3", "box.4")][dim(model.output)[1],]
-  
-  colsums <- colSums(abs(x2 - x1))
-  
-  if (is.nan(box.no)) {
-    res <- sum(colsums)
-  }
-  else if (box.no == 'all') {
-    res <- colsums
-  }
-  else {
-    res <- colsums[box.no]
-  }
-  
-  return (res)
-}
